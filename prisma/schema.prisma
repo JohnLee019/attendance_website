@@ -12,3 +12,83 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum PersonColor {
+  BLACK
+  BlUE
+}
+
+model User {
+  id              String    @id@default(uuid())
+  email           String    @unique
+  passwordHash    String
+  created         DateTime  @default(now())
+
+  people          Person[]
+  seats           Seat[]
+  attendances     Attendance[]
+  exportFiles     ExportFile[]
+}
+
+model Person {
+  id              String      @id@default(uuid())
+  userId          String
+  name            String
+  color           PersonColor @default(BLACK)
+  memo            String?
+  displayOrder    Int
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seats           Seat[]
+
+  @@index([userId, displayOrder])
+}
+
+model Seat {
+  id          String    @id@default(uuid())
+  userId      String
+  label       String
+  row         Int
+  col         Int
+  personId    String?
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  person      Person?   @relation(fields: [personId], references: [id], onDelete: SetNull)
+
+  attendances Attendance[]
+
+  @@unique([userId, row, col])
+  @@index([userId])
+  @@index([personId])
+}
+
+model Attendance {
+  id        String      @id@default(uuid())
+  userId    String
+  date      DateTime
+  seatId    String
+  present   Boolean     @default(false)
+  createdAt DateTime    @default(now())
+  updateAt  DateTime    @default(now())
+
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seat    Seat @relation(fields: [seatId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, seatId])
+  @@index([userId, date])
+  @@index([seatId])
+}
+
+model ExportFile {
+  id        String   @id @default(uuid())
+  userId    String
+  fromDate  DateTime
+  toDate    DateTime
+  fileName  String
+  storagePath String
+  createdAt DateTime @default(now())
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
