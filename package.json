@@ -6,16 +6,25 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohnLee019/attendance_website.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/JohnLee019/attendance_website/issues"
+  },
+  "homepage": "https://github.com/JohnLee019/attendance_website#readme",
   "dependencies": {
-    "@prisma/client": "^7.2.0",
-    "express": "^5.2.1"
+    "better-sqlite3": "^12.6.2",
+    "express": "^5.2.1",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "prisma": "^7.2.0"
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/express": "^5.0.6"
   }
 }
