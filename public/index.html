@@ -4,8 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <a href="settings.html"></a>
+    <link rel="stylesheet" href="index.css" />
 </head>
 <body>
     <h1>Attendance Website</h1>
+    <div id="seatmap" class="seatmap" aria-label="좌석 배치도">
+
+        <section class="block"
+            data-block="L1" data-r="2" data-c="2" data-rs="6" data-cs="6"
+            aria-label="좌측 상단 블록">
+            <button class="seat" data-seat-id="L1-1" type="button">최돈하</button>
+            <button class="seat" data-seat-id="L1-2" type="button">정의섭</button>
+            <button class="seat" data-seat-id="L1-3" type="button">김대연</button>
+            <button class="seat" data-seat-id="L1-4" type="button">윤찬영</button>
+            <button class="seat" data-seat-id="L1-5" type="button">이재풍</button>
+            <button class="seat" data-seat-id="L1-6" type="button">김용일</button>
+        </section>
+
+        <section class="block"
+            data-block="L2" data-r="10" data-c="2" data-rs="6" data-cs="6"
+            aria-label="좌측 중단 블록">
+            <button class="seat" data-seat-id="L2-1" type="button">김백성</button>
+            <button class="seat" data-seat-id="L2-2" type="button">홍승록</button>
+            <button class="seat" data-seat-id="L2-3" type="button">서용준</button>
+            <button class="seat" data-seat-id="L2-4" type="button">정길수</button>
+            <button class="seat" data-seat-id="L2-5" type="button">홍광호</button>
+            <button class="seat" data-seat-id="L2-6" type="button">박창국</button>
+        </section>
+
+        <section class="block"
+            data-block="L3" data-r="18" data-c="2" data-rs="6" data-cs="6"
+            aria-label="좌측 하단 블록">
+            <button class="seat" data-seat-id="L3-1" type="button">서종화</button>
+            <button class="seat" data-seat-id="L3-2" type="button">송규원</button>
+            <button class="seat" data-seat-id="L3-3" type="button">김완철</button>
+            <button class="seat" data-seat-id="L3-4" type="button">전갑수</button>
+            <button class="seat" data-seat-id="L3-5" type="button">송봉수</button>
+            <button class="seat" data-seat-id="L3-6" type="button">김권우</button>
+        </section>
+
+        <section class="block"
+            data-block="C1" data-r="2" data-c="10" data-rs="6" data-cs="6"
+            aria-label="중앙 상단 블록">
+            <button class="seat" data-seat-id="C1-1" type="button">전영숙</button>
+            <button class="seat" data-seat-id="C1-2" type="button">전영자</button>
+            <button class="seat" data-seat-id="C1-3" type="button">이관평</button>
+            <button class="seat" data-seat-id="C1-4" type="button">김흥철</button>
+            <button class="seat" data-seat-id="C1-5" type="button">조일환</button>
+            <button class="seat" data-seat-id="C1-6" type="button">이두환</button>
+        </section>
+
+        <section class="block"
+            data-block="C2" data-r="10" data-c="10" data-rs="6" data-cs="6"
+            aria-label="중앙 중단 블록">
+            <button class="seat" data-seat-id="C2-1" type="button">박오심</button>
+            <button class="seat" data-seat-id="C2-2" type="button">박금자</button>
+            <button class="seat" data-seat-id="C2-3" type="button">김종호</button>
+            <button class="seat" data-seat-id="C2-4" type="button">김정희</button>
+            <button class="seat" data-seat-id="C2-5" type="button">김춘돌</button>
+            <button class="seat" data-seat-id="C2-6" type="button">김태현</button>
+        </section>
+
+        <section class="block"
+            data-block="C3" data-r="18" data-c="10" data-rs="6" data-cs="6"
+            aria-label="중앙 하단 블록">
+            <button class="seat" data-seat-id="C3-1" type="button">김봉식</button>
+            <button class="seat" data-seat-id="C3-2" type="button">안종은</button>
+            <button class="seat" data-seat-id="C3-3" type="button">김성문</button>
+            <button class="seat" data-seat-id="C3-4" type="button">오세찬</button>
+            <button class="seat" data-seat-id="C3-5" type="button">김명수</button>
+            <button class="seat" data-seat-id="C3-6" type="button">최종달</button>
+        </section>
+
+        <section class="block wide"
+            data-block="R1" data-r="2" data-c="18" data-rs="4" data-cs="10"
+            aria-label="우측 상단 블록">
+            <button class="seat" data-seat-id="R1-1" type="button">차희사자</button>
+            <button class="seat" data-seat-id="R1-2" type="button">황희분</button>
+            <button class="seat" data-seat-id="R1-3" type="button">김필례</button>
+            <button class="seat" data-seat-id="R1-4" type="button">김기석</button>
+
+            <button class="seat" data-seat-id="R1-5" type="button">김화월</button>
+            <button class="seat" data-seat-id="R1-6" type="button">김초선</button>
+            <button class="seat" data-seat-id="R1-7" type="button">강영옥</button>
+            <button class="seat" data-seat-id="R1-8" type="button"></button>
+        </section>
+
+        <section class="block wide"
+            data-block="R2" data-r="12" data-c="18" data-rs="4" data-cs="10"
+            aria-label="우측 중단 블록">
+            <button class="seat" data-seat-id="R2-1" type="button">김백순</button>
+            <button class="seat" data-seat-id="R2-2" type="button">김봉순</button>
+            <button class="seat" data-seat-id="R2-3" type="button">최순자</button>
+            <button class="seat" data-seat-id="R2-4" type="button">강옥희</button>
+
+            <button class="seat" data-seat-id="R2-5" type="button">문보성</button>
+            <button class="seat" data-seat-id="R2-6" type="button">정완자</button>
+            <button class="seat" data-seat-id="R2-7" type="button">강민선</button>
+            <button class="seat" data-seat-id="R2-8" type="button">김순자</button>
+        </section>
+
+        <section class="block wide"
+            data-block="R3" data-r="20" data-c="18" data-rs="4" data-cs="10"
+            aria-label="우측 하단 블록">
+            <button class="seat" data-seat-id="R3-1" type="button">이영희</button>
+            <button class="seat" data-seat-id="R3-2" type="button">박복단</button>
+            <button class="seat" data-seat-id="R3-3" type="button">최정순</button>
+            <button class="seat" data-seat-id="R3-4" type="button">김소영</button>
+
+            <button class="seat" data-seat-id="R3-5" type="button">이정순</button>
+            <button class="seat" data-seat-id="R3-6" type="button">양희순</button>
+            <button class="seat" data-seat-id="R3-7" type="button">윤기순</button>
+            <button class="seat" data-seat-id="R3-8" type="button">김정애</button>
+        </section>
+
+    </div>
+
 </body>
 </html>
