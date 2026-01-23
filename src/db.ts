@@ -23,7 +23,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     seatNo INTEGER NOT NULL UNIQUE, 
     personId INTEGER,
-    FOREGIN KEY (personId) REFERENCES Person(id)
+    FOREIGN KEY (personId) REFERENCES Person(id)
       ON DELETE SET NULL
   );
 `);
@@ -36,11 +36,11 @@ db.exec(`
     personId INTEGER,
     present INTEGER NOT NULL DEFAULT 0,
 
-    FOREGIN KEY (seatId) REFERENCES Seat(id)
-      ON DELETE SET NULL
-    FOREGIN KEY (personId) REFERENCES Person(id)
-      ON DELETE SET NULL 
-      
+    FOREIGN KEY (seatId) REFERENCES Seat(id)
+      ON DELETE SET NULL,
+    FOREIGN KEY (personId) REFERENCES Person(id)
+      ON DELETE SET NULL,
+
     UNIQUE(date, seatId)
   );
 `); //present에서 미 참석시 0, 참석시 1
