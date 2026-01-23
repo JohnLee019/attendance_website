@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="index.css" />
 </head>
 <body>
-    <h1>Attendance Website</h1>
+    <h1 id="date"></h1>
     <div id="seatmap" class="seatmap" aria-label="좌석 배치도">
 
         <section class="block"
@@ -119,7 +119,13 @@
             <button class="seat" data-seat-id="R3-8" type="button">김정애</button>
         </section>
 
+        <script>
+            window.addEventListener("DOMContentLoaded", () => {
+                getTodayDate();
+            });
+        </script>
     </div>
-
+    <script src="../dist/date.js"></script>
+    <script src="../dist/table.js"></script>
 </body>
 </html>

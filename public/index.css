@@ -21,6 +21,7 @@
 
   /* “그리드 캔버스” 크기 느낌: JS가 grid-template을 넣으면 더 정확해짐 */
   min-height: 600px;
+  display: grid;
 }
 
 /* JS가 좌표를 적용할 때를 대비한 기본값(원하면 JS 없이도 동작 가능) */
@@ -136,10 +137,21 @@
   border-radius: 50%;
 }
 
+#date {
+  display: inline-block;
+  padding: 12px 20px;
+  font-size: 1.5rem;
+  font-weight: 500;
+  background-color: #f5f6f8;
+  border-radius: 8px;
+  color: #333; 
+}
+
 /* 반응형: 화면이 작아지면 좌석 최소 폭을 줄여서 한 화면에 더 들어오게 */
 @media (max-width: 800px) {
   .seatmap {
     padding: 16px;
+    display: grid;
   }
 
   .block {
