@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
+import { SEED_SEATS, SeatSeed } from "./seedSeats";
 
 const dataDir = path.join(process.cwd(), "data");
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
@@ -31,6 +32,24 @@ db.exec(`
       ON DELETE SET NULL
   );
 `);
+
+function seedSeatsIfEmpty() {
+  const row = db.prepare(`SELECT COUNT(*) AS cnt FROM Seat;`).get() as { cnt: number};
+  if (row.cnt > 0) return;
+
+  const insert = db.prepare(`
+    INSERT INTO Seat (seatNo, personId, r, c, rs, cs)
+    VALUES (@seatNo, NULL, @r, @c, @rs, @cs);
+    `)
+
+  const insertMany = db.transaction((seats: SeatSeed[]) => {
+    for (const s of seats) insert.run(s);
+  });
+
+  insertMany(SEED_SEATS);
+}
+
+seedSeatsIfEmpty();
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS Attendance (
