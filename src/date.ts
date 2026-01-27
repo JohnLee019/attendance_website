@@ -1,4 +1,4 @@
-function getTodayDate() {
+export function getTodayDate() {
     const date = document.getElementById("date");
     if (!date) return;
     
