@@ -1,13 +1,14 @@
 import express from "express";
 import { db } from "./db";
 import path from "path";
-import { getTodayDate } from "./date";
-import { AttendanceRow } from "./table";
+import { getTodayDate } from "../shared/date";
+import { AttendanceRow } from "../client/table";
 
 const app = express();
 app.use(express.json());
+app.use(express.static("public"));
 app.use(express.static(path.join(process.cwd(), "public")));
-app.use("/dist", express.static(path.join(process.cwd(), "dist")));
+// app.use("/dist", express.static(path.join(process.cwd(), "dist")));
 
 app.get("/api/seats", (req, res) => {
   const rows = db.prepare(`

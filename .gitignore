@@ -2,3 +2,7 @@
 .env
 /data/attendance.db
 /dist
+/public/client
+/public/shared
+/public/settings.js
+/public/table.js

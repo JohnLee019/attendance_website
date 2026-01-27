@@ -1,7 +1,21 @@
+import { getTodayDate } from "../shared/date.js";
+
 type SeatApiRow = {
   seatNo: number;
   personId: number | null;
   personName: string | null;
+};
+
+export type AttendanceInput = {
+  seatId: number;
+  date: string;      
+  present: number;
+};
+
+export type AttendanceRow = {
+  seatId: number;
+  date: string;      
+  present: number; 
 };
 
 async function fetchSeats(): Promise<SeatApiRow[]> {
@@ -33,8 +47,28 @@ function appendSeatNos(block: HTMLElement, seatNos: number[], seatByNo: Map<numb
   }
 }
 
+async function updateAttendance(personId: number, isPresent: boolean): Promise<AttendanceInput[]> {
+  const res = await fetch(`/api/attendance/${personId}`, {
+    method: "PATCH",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ isPresent })
+  });
+
+  if (!res.ok) {
+    throw new Error("출석 상태 업데이트 실패");
+  }
+
+  return res.json();
+}
+
+
 window.addEventListener("DOMContentLoaded", async () => {
   const seats = await fetchSeats();
+
+  const dateEl = document.getElementById("date");
+  if (dateEl) {
+    dateEl.textContent = getTodayDate(); 
+  }
 
   const seatByNo = new Map<number, SeatApiRow>();
   for (const s of seats) seatByNo.set(s.seatNo, s);
@@ -107,4 +141,15 @@ window.addEventListener("DOMContentLoaded", async () => {
     appendSeatNos(b, [51, 52, 53, 54, 55, 56, 57, 58], seatByNo);
     seatmap.appendChild(b);
   }
+
+  const seat_map = document.getElementById("seatmap");
+
+  seat_map?.addEventListener("click", (e) => {
+    console.log(e);
+    // try {
+
+    // } catch {
+
+    // }
+  })
 });
