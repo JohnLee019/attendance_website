@@ -1,6 +1,7 @@
 import { getTodayDate } from "../shared/date.js";
 
 type SeatApiRow = {
+  id: number;
   seatNo: number;
   personId: number | null;
   personName: string | null;
@@ -9,7 +10,7 @@ type SeatApiRow = {
 export type AttendanceInput = {
   seatId: number;
   date: string;      
-  present: number;
+  present: boolean;
 };
 
 export type AttendanceRow = {
@@ -36,10 +37,13 @@ function appendSeatNos(block: HTMLElement, seatNos: number[], seatByNo: Map<numb
   for (const seatNo of seatNos) {
     const seat = seatByNo.get(seatNo);
 
+    if(!seat) return;
+
     const btn = document.createElement("button");
     btn.className = "seat";
     btn.type = "button";
     btn.dataset.seatNo = String(seatNo);
+    btn.dataset.seatId = String(seat.id);
 
     btn.textContent = seat?.personName ?? "";
 
@@ -47,8 +51,8 @@ function appendSeatNos(block: HTMLElement, seatNos: number[], seatByNo: Map<numb
   }
 }
 
-async function updateAttendance(personId: number, isPresent: boolean): Promise<AttendanceInput[]> {
-  const res = await fetch(`/api/attendance/${personId}`, {
+async function updateAttendance(seatId: number, isPresent: boolean): Promise<AttendanceInput[]> {
+  const res = await fetch(`/api/seatattendance/${seatId}`, {
     method: "PATCH",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ isPresent })
@@ -144,12 +148,32 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const seat_map = document.getElementById("seatmap");
 
-  seat_map?.addEventListener("click", (e) => {
-    console.log(e);
-    // try {
+seat_map?.addEventListener("click", async (e) => {
+  const t = (e.target as HTMLElement).closest("button.seat") as HTMLButtonElement | null;
+  if (!t) return;
 
-    // } catch {
+  const seatId = Number(t.dataset.seatId);
+  if (!seatId) return;
 
-    // }
-  })
+  try {
+    const res = await fetch(`/api/seatattendance/${seatId}`, {
+      method: "PATCH"
+    });
+
+    if (!res.ok) throw new Error("서버 오류");
+
+    const data = await res.json();
+
+    if (data.present) {
+      t.classList.add("present");
+    } else {
+      t.classList.remove("present");
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("출석 처리 실패");
+  }
+});
+
 });
