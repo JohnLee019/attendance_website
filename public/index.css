@@ -65,6 +65,18 @@
   position: relative;
 }
 
+.seat.present {
+  background: #e9e9e9;      /* 살짝 흐린 회색 */
+  color: #666;              /* 글자색 연하게 */
+  opacity: 0.75;            /* 약간 흐리게 */
+  transition: all 0.2s ease;
+}
+
+/* 버튼 안에 텍스트 전체에 취소선 */
+.seat.present {
+  text-decoration: line-through;
+}
+
 .seat.has-memo::after {
   content: "";
   position: absolute;
