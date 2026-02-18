@@ -112,3 +112,15 @@
     font-size: 12px;
   }
 }
+
+.seat.present {
+  background-color: #e0e0e0;   /* 연한 회색 */
+  color: #999;                 /* 글자 흐리게 */
+  text-decoration: line-through;  /* 이름에 작대기 */
+  border: 2px solid #666;
+}
+
+.seat.present:active {
+  transform: scale(0.98);
+}
+

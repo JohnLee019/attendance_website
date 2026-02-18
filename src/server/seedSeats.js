@@ -1,15 +1,7 @@
-export type SeatSeed = {
-    seatNo: number,
-    r: number;
-    c: number;
-    rs: number;
-    cs: number;
-};
-
 const TOTAL_SEATS = 60;
 const COLS_PER_ROW = 10;
 
-export const SEED_SEATS: SeatSeed[] = Array.from(
+export const SEED_SEATS = Array.from(
   { length: TOTAL_SEATS },
   (_, i) => {
     const seatNo = i + 1;

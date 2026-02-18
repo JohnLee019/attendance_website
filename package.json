@@ -1,14 +1,10 @@
 {
-  "name": "attendance_website",
+  "name": "js_attendance",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:server": "tsc -p tsconfig.server.json",
-    "build:client": "tsc -p tsconfig.client.json",
-    "build": "npm run build:client && npm run build:server",
-    "start": "node dist/server/app.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -17,18 +13,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/JohnLee019/attendance_website/issues"
   },
   "homepage": "https://github.com/JohnLee019/attendance_website#readme",
   "dependencies": {
     "better-sqlite3": "^12.6.2",
-    "express": "^5.2.1",
-    "typescript": "^5.9.3"
-  },
-  "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
-    "@types/express": "^5.0.6"
+    "express": "^5.2.1"
   }
 }
