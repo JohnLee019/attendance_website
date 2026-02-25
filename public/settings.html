@@ -1,18 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>설정</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <h1>Settings</h1>
-    <div class="container">
-        <input id="searchInput" type="text" placeholder="사용자 이름을 입력하세요">
-        <button id="searchButton">검색</button>
-    </div>
-    <ul id="searchList"></ul>
 
-    <script type="module" src="/settings.js"></script>
+  <a href="index.html">← 돌아가기</a>
+
+  <section>
+    <h2>좌석 정보 수정</h2>
+    <a href="editSeats.html">
+      <button>정보 수정하기</button>
+    </a>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2>엑셀 리포트 이메일 설정</h2>
+    <input type="email" id="reportEmail" placeholder="엑셀 받을 이메일">
+    <button id="saveEmail">저장</button>
+    <div id="emailList"></div>
+  </section>
+
+  <script type="module" src="/client/settings.js"></script>
+
 </body>
 </html>

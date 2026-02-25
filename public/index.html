@@ -8,7 +8,17 @@
     <link rel="stylesheet" href="index.css" />
 </head>
 <body>
-    <h1 id="date"></h1>
+    <div class="header-center">
+        <h1 id="date"></h1>
+        <h2 id="todayStats"></h2>
+    </div>
+    <div class="toolbar">
+        <button id="memoMode">메모 작성</button>
+        <button id="memoToggle">메모 보기</button>
+        <button id="exportExcel">엑셀 보내기</button>
+        <button id="lastMonthReport">저번 달 출석률 보내기</button>
+    </div>
+
     <div id="seatmap" class="seatmap" aria-label="좌석 배치도"></div>
     
     <!-- <script type="module" src="/shared/date.js"></script> -->

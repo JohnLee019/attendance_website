@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>좌석 정보 수정</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <a href="settings.html">← 설정으로 돌아가기</a>
+
+  <div class="header-center">
+    <h2>좌석 정보 수정</h2>
+  </div>
+
+  <div class="toolbar">
+    <button id="editNameBtn">이름 변경하기</button>
+    <button id="editColorBtn">색깔 변경하기</button>
+
+    <div id="colorSelector" style="display:none;">
+      <button id="colorBlack">검정</button>
+      <button id="colorBlue">파랑</button>
+    </div>
+  </div>
+
+  <div id="seatmap" class="seatmap"></div>
+
+  <script type="module" src="/client/editSeats.js"></script>
+
+</body>
+</html>
