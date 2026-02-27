@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>출석 기록 조회</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="index.html">← 돌아가기</a>
+    <input type="date" id="selectedDate" />
+    <button id="searchDate">조회</button>
+    <button id="editAttendanceBtn" disabled>출석 수정</button>
+    <button id="exportHistoryExcel" disabled>엑셀 보내기</button>
+  </div>
+
+  <div id="seatmap" class="seatmap"></div>
+
+  <script type="module" src="/client/history.js"></script>
+</body>
+</html>

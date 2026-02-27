@@ -1,14 +1,11 @@
+/* 좌석 맵 레이아웃 */
 .seatmap {
   padding: 24px;
   min-height: 600px;
   display: grid;
 }
 
-.seatmap.is-grid {
-  display: grid;
-  gap: 15px;
-}
-
+/* 블록(교실 구역) 레이아웃 */
 .block {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -23,10 +20,12 @@
   width: max-content;
 }
 
+/* 4열 블록 */
 .block.wide {
   grid-template-columns: repeat(4, 1fr);
 }
 
+/* 기본 좌석 버튼 스타일 */
 .seat {
   appearance: none;
   -webkit-appearance: none;
@@ -43,10 +42,7 @@
   border-radius: 6px;
 }
 
-.seat:empty::before {
-  content: " ";
-}
-
+/* 인터랙션 */
 .seat:hover {
   background: #f5f5f5;
 }
@@ -56,27 +52,24 @@
   outline-offset: 2px;
 }
 
+.seat:active {
+  transform: scale(0.98);
+}
+
+
+/* 좌석 상태 */
+/* 선택된 좌석 */
 .seat.is-active {
   background: #000;
   color: #fff;
 }
 
+/* 메모 존재 좌석 */
 .seat.has-memo {
   position: relative;
 }
 
-.seat.present {
-  background: #e9e9e9;      /* 살짝 흐린 회색 */
-  color: #666;              /* 글자색 연하게 */
-  opacity: 0.75;            /* 약간 흐리게 */
-  transition: all 0.2s ease;
-}
-
-/* 버튼 안에 텍스트 전체에 취소선 */
-.seat.present {
-  text-decoration: line-through;
-}
-
+/* 메모 표시 점 */
 .seat.has-memo::after {
   content: "";
   position: absolute;
@@ -85,8 +78,49 @@
   width: 8px;
   height: 8px;
   border: 1px solid #000;
-  background: #fff;
+  background: #ffd600;
   border-radius: 50%;
+}
+
+/* 출석 처리된 좌석 (중복 정의 유지, 의미 통합 설명) */
+.seat.present {
+  background-color: #eceaea;
+  color: #999;
+  text-decoration: line-through;
+  border: 2px solid #666;
+}
+
+.seat.present:active {
+  transform: scale(0.98);
+}
+
+/* 파란색 강조 좌석 */
+.seat.blue-seat {
+  border: 2px solid #1565c0;
+  color: #1565c0;
+}
+
+/* 업데이트 애니메이션 */
+.seat.updated {
+  outline: 3px solid #ff9800;
+  outline-offset: 2px;
+  transition: outline 0.6s ease;
+}
+
+/* 편집 모드 강조 */
+.edit-mode {
+  outline: 2px dashed #ff9800;
+}
+
+
+/*  상단 날짜 & 통계 */
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
 }
 
 #date {
@@ -96,43 +130,235 @@
   font-weight: 500;
   background-color: #f5f6f8;
   border-radius: 8px;
-  color: #333; 
+  color: #333;
+  margin: 0;
+  text-align: center;
 }
 
-@media (max-width: 800px) {
+#todayStats {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+
+/* 툴바 영역 */
+.toolbar {
+  display: flex;
+  gap: 50px;
+  margin-bottom: 30px;
+}
+
+.toolbar button {
+  padding: 6px 14px;
+}
+
+/* 버튼 활성화 */
+.toolbar button.active {
+  background: #000;
+  color: #fff;
+}
+
+#memoMode.active,
+#memoToggle.active {
+  background: #969696;
+  color: #fff;
+}
+
+/* 색 선택 버튼 */
+#colorSelector button.active {
+  background: #1565c0;
+  color: #fff;
+}
+
+
+/* 이메일 설정 영역 */
+#reportEmail { margin-right: 8px; }
+#saveEmail { margin-right: 12px; }
+
+#emailList {
+  margin-top: 25px;
+}
+
+#emailList > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+
+/* 메모 말풍선 */
+.memo-bubble {
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 160px;
+  max-width: 220px;
+  padding: 12px;
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 16px;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 2px 2px 0 #000;
+  display: none;
+  z-index: 100;
+  word-break: break-word;
+}
+
+/* 말풍선 꼬리 */
+.memo-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-right: 2px solid #000;
+  border-bottom: 2px solid #000;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* 닫기 버튼 */
+.memo-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* 열림 상태 */
+.seat.show-memo .memo-bubble {
+  display: block;
+}
+
+
+/* 로그인 화면 */
+.login-body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f6f8;
+}
+
+.login-container {
+  background: #fff;
+  padding: 40px 50px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.login-container h2 {
+  margin-bottom: 25px;
+  font-size: 1.6rem;
+}
+
+#password {
+  width: 240px;
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #000;
+  border-radius: 6px;
+  margin-right: 10px;
+}
+
+#loginBtn {
+  padding: 12px 20px;
+  font-size: 16px;
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#loginBtn:hover {
+  background: #333;
+}
+
+/* 날짜 지정 달력 */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.top-bar input {
+  padding: 6px;
+}
+
+.top-bar button {
+  padding: 6px 12px;
+}
+
+/* ===== Galaxy Tab S6 Lite (800 x 1280 세로) ===== */
+@media (min-width: 700px) and (max-width: 900px) {
+
+  body {
+    background: #f7f7f7;
+  }
+
   .seatmap {
-    padding: 16px;
+    padding: 20px;
   }
 
+  /* 전체 그리드 폭을 화면에 맞춤 */
+  .seatmap.is-grid {
+    grid-template-columns: repeat(24, 1fr) !important;
+    grid-auto-rows: 30px !important;
+    justify-content: center;
+  }
+
+  /* 블록 중앙 정렬 */
   .block {
-    padding: 8px;
-    gap: 6px;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    justify-self: center !important;
+    align-self: start !important;
   }
 
+  /* 좌석 버튼 크기 */
   .seat {
-    min-width: 76px;
-    min-height: 38px;
+    min-width: 78px;
+    min-height: 40px;
     font-size: 13px;
     padding: 6px 8px;
   }
-}
 
-@media (max-width: 480px) {
-  .seat {
-    min-width: 68px;
-    min-height: 36px;
-    font-size: 12px;
+  /* 상단 날짜 */
+  #date {
+    font-size: 1.4rem;
+    padding: 10px 18px;
+  }
+
+  #todayStats {
+    font-size: 1.1rem;
+  }
+
+  /* 툴바 간격 */
+  .toolbar {
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .toolbar button {
+    padding: 6px 14px;
+    font-size: 13px;
   }
 }
-
-.seat.present {
-  background-color: #e0e0e0;   /* 연한 회색 */
-  color: #999;                 /* 글자 흐리게 */
-  text-decoration: line-through;  /* 이름에 작대기 */
-  border: 2px solid #666;
-}
-
-.seat.present:active {
-  transform: scale(0.98);
-}
-
