@@ -2,20 +2,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import XLSX from "xlsx";
-import nodemailer from "nodemailer";
 import { getDailyAttendance, getMonthlyAttendance } from "./db/attendanceRepo.js";
 import { getActiveEmail } from "./db/emailRepo.js";
+import { Resend } from "resend";
 
-// 메일 전송 설정
-const transporter = nodemailer.createTransport({
-  host: "smtp.naver.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_ID,
-    pass: process.env.EMAIL_PASSWORD
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 
 // 월간 출석 엑셀 전송
@@ -25,13 +16,9 @@ export async function sendMonthlyExcel(start, end, year, month) {
   if (!email) throw new Error("활성 이메일 없음");
 
   const data = await getMonthlyAttendance(start, end);
-
-  if (!data.length) {
-    return { empty: true };
-  }
+  if (!data.length) return { empty: true };
 
   const worksheetData = data.map(d => {
-
     const totalDays = d.totalDays || 0;
     const totalPresent = d.totalPresent || 0;
 
@@ -50,7 +37,6 @@ export async function sendMonthlyExcel(start, end, year, month) {
 
   const workbook = XLSX.utils.book_new();
   const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-
   XLSX.utils.book_append_sheet(workbook, worksheet, "월간출석");
 
   const buffer = XLSX.write(workbook, {
@@ -58,15 +44,17 @@ export async function sendMonthlyExcel(start, end, year, month) {
     bookType: "xlsx"
   });
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_ID,
+  await resend.emails.send({
+    from: "onboarding@resend.dev",
     to: email,
     subject: `${year}-${month} 월간 출석 현황`,
     text: "월간 출석 리포트입니다.",
-    attachments: [{
-      filename: `${year}-${month}_월간출석.xlsx`,
-      content: buffer
-    }]
+    attachments: [
+      {
+        filename: `${year}-${month}_월간출석.xlsx`,
+        content: buffer.toString("base64")
+      }
+    ]
   });
 
   return { success: true };
@@ -80,10 +68,7 @@ export async function sendTodayExcel(date) {
   if (!email) throw new Error("활성 이메일 없음");
 
   const data = await getDailyAttendance(date);
-
-  if (!data.length) {
-    return { empty: true };
-  }
+  if (!data.length) return { empty: true };
 
   const worksheetData = data.map(d => ({
     이름: d.personName,
@@ -92,7 +77,6 @@ export async function sendTodayExcel(date) {
 
   const workbook = XLSX.utils.book_new();
   const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-
   XLSX.utils.book_append_sheet(workbook, worksheet, "오늘출석");
 
   const buffer = XLSX.write(workbook, {
@@ -100,15 +84,17 @@ export async function sendTodayExcel(date) {
     bookType: "xlsx"
   });
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_ID,
+  await resend.emails.send({
+    from: "onboarding@resend.dev",
     to: email,
     subject: `${date} 출석 현황`,
     text: "오늘 출석 리포트입니다.",
-    attachments: [{
-      filename: `${date}_출석.xlsx`,
-      content: buffer
-    }]
+    attachments: [
+      {
+        filename: `${date}_출석.xlsx`,
+        content: buffer.toString("base64")
+      }
+    ]
   });
 
   return { success: true };
