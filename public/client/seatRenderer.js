@@ -20,7 +20,7 @@ export function appendSeatNos(block, seatNos, seatByNo) {
       btn.dataset.personId = seat.personId ?? "";
       btn.textContent = seat.personName ?? "";
 
-      if (seat.flag === 1) {
+      if (seat.color === 1) {
         btn.classList.add("blue-seat");
       }
         

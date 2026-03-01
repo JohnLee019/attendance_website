@@ -128,6 +128,26 @@ seatmap.addEventListener("click", async (e) => {
     btn.classList.remove("present");
   }
 
+  
   // 수정 즉시 엑셀 버튼 상태 업데이트
   updateExportButtonState();
+});
+
+exportBtn.addEventListener("click", async () => {
+  if (!currentDate) {
+    alert("날짜를 먼저 선택하세요.");
+    return;
+  }
+
+  const res = await fetch("/api/sendDateExcel", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ date: currentDate })
+  });
+
+  if (res.ok) {
+    alert("엑셀을 이메일로 전송했습니다.");
+  } else {
+    alert("전송 실패");
+  }
 });

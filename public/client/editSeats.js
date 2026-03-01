@@ -85,8 +85,13 @@ seatmap.addEventListener("click", async (e) => {
   const btn = e.target.closest(".seat");
   if (!btn) return;
 
-  const personId = Number(btn.dataset.personId);
-  if (!personId) return;
+  const personIdRaw = btn.dataset.personId;
+  console.log("personIdRaw:", personIdRaw);
+
+  if (personIdRaw === undefined) return;
+
+  const personId = Number(personIdRaw);
+  if (isNaN(personId)) return;
 
   // 이름 변경 모드
   if (editMode === "name") {
