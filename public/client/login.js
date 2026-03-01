@@ -15,7 +15,7 @@ const form = document.getElementById("loginForm");
       });
 
       if (res.ok) {
-        window.location.href = "/";
+        window.location.href = "/index.html";
       } else {
         alert("비밀번호 틀림");
       }
