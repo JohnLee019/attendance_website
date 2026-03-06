@@ -31,6 +31,7 @@
   -webkit-appearance: none;
   background: #fff;
   border: 1px solid #000;
+  color: #000;
   min-width: 90px;
   min-height: 42px;
   padding: 8px 10px;
@@ -172,6 +173,13 @@
   color: #fff;
 }
 
+/* 직접 전달 */
+#directStats{
+  margin-top:6px;
+  font-size:1.1rem;
+  color:#1565c0;
+  font-weight:600;
+}
 
 /* 이메일 설정 영역 */
 #reportEmail { margin-right: 8px; }
@@ -361,4 +369,61 @@
     padding: 6px 14px;
     font-size: 13px;
   }
+}
+
+/* ===== 월 출석표 ===== */
+
+.attendance-table {
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 20px;
+  background: white;
+  min-width: 800px;
+}
+
+.attendance-table th,
+.attendance-table td {
+  border: 1px solid #dcdcdc;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+/* header */
+.attendance-table th {
+  background: #f4f6f8;
+  font-weight: 600;
+}
+
+/* 좌석 / 성명 column */
+.attendance-table th:nth-child(1),
+.attendance-table th:nth-child(2),
+.attendance-table td:nth-child(1),
+.attendance-table td:nth-child(2) {
+  background: #fafafa;
+  font-weight: 500;
+}
+
+/* 출석 표시 */
+.attendance-table td {
+  width: 28px;
+  height: 26px;
+}
+
+/* 출석 0 */
+.attendance-table td:has(:not(:empty)),
+.attendance-table td:not(:empty) {
+  background: #e8f5e9;
+  font-weight: bold;
+}
+
+/* hover */
+.attendance-table tr:hover td {
+  background: #f9fbfd;
+}
+
+/* 제목 */
+#title {
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: 600;
 }
