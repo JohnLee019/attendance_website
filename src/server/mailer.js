@@ -10,6 +10,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 
 // 월간 출석 엑셀 전송
+function getDaysInMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
 export async function sendMonthlyExcel(start, end, year, month) {
 
   const email = await getActiveEmail();
@@ -18,26 +22,85 @@ export async function sendMonthlyExcel(start, end, year, month) {
   const data = await getMonthlyAttendance(start, end);
   if (!data.length) return { empty: true };
 
-  const worksheetData = data.map(d => {
-    const totalDays = d.totalDays || 0;
-    const totalPresent = d.totalPresent || 0;
+  const daysInMonth = getDaysInMonth(year, month);
 
-    const rate =
-      totalDays === 0
-        ? "0%"
-        : `${Math.round((totalPresent / totalDays) * 100)}%`;
+  const worksheetData = [];
 
-    return {
-      이름: d.personName,
-      출석일수: totalPresent,
-      총일수: totalDays,
-      출석률: rate
+  // 운영일 계산 (한 사람이라도 출석한 날짜)
+  const activeDays = new Set();
+
+  for (const person of data) {
+    for (const d of person.days) {
+      activeDays.add(d);
+    }
+  }
+
+  const activeDayCount = activeDays.size;
+
+  for (const person of data) {
+
+    const row = {
+      좌석: person.seatNo,
+      성명: person.name
     };
-  });
+
+    let presentCount = 0;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+
+      const dateStr =
+        `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+      if (person.days.includes(dateStr)) {
+        row[d] = 0;
+        presentCount++;
+      } else {
+        row[d] = "";
+      }
+    }
+
+    // 총 출석 일수
+    row["총 출석 일수"] = presentCount;
+
+    // 출석률 (운영일 기준)
+    row["출석률"] =
+      activeDayCount === 0
+        ? "0%"
+        : `${Math.round((presentCount / activeDayCount) * 100)}%`;
+
+    worksheetData.push(row);
+  }
 
   const workbook = XLSX.utils.book_new();
-  const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-  XLSX.utils.book_append_sheet(workbook, worksheet, "월간출석");
+
+  // 제목 + 빈줄
+  const worksheet = XLSX.utils.aoa_to_sheet([
+    [`${year}년 ${month}월 경로식당 출석부`],
+    []
+  ]);
+
+  // header 순서
+  const headers = ["좌석", "성명"];
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    headers.push(String(d));
+  }
+
+  headers.push("총 출석 일수");
+  headers.push("출석률");
+
+  // 데이터 추가
+  XLSX.utils.sheet_add_json(
+    worksheet,
+    worksheetData,
+    {
+      header: headers,
+      origin: "A3",
+      skipHeader: false
+    }
+  );
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "출석부");
 
   const buffer = XLSX.write(workbook, {
     type: "buffer",
@@ -47,11 +110,11 @@ export async function sendMonthlyExcel(start, end, year, month) {
   await resend.emails.send({
     from: "onboarding@resend.dev",
     to: email,
-    subject: `${year}-${month} 월간 출석 현황`,
+    subject: `${year}-${month} 경로식당 출석부`,
     text: "월간 출석 리포트입니다.",
     attachments: [
       {
-        filename: `${year}-${month}_월간출석.xlsx`,
+        filename: `${year}-${String(month).padStart(2, "0")} 경로식당 출석부.xlsx`,
         content: buffer.toString("base64")
       }
     ]
@@ -72,7 +135,7 @@ export async function sendTodayExcel(date) {
 
   const worksheetData = data.map(d => ({
     이름: d.personName,
-    출석여부: d.present ? "O" : "X"
+    출석여부: d.present ? "O" : ""
   }));
 
   const workbook = XLSX.utils.book_new();

@@ -11,7 +11,7 @@ import { getTodayDate, getLastMonthRange } from "./utils/date.js";
 import { sendMonthlyExcel, sendTodayExcel } from "./mailer.js";
 import { getSeatsByDate } from "./db/seatRepo.js";
 import {addReportEmail, getReportEmails, setActiveEmail, deleteReportEmail} from "./db/emailRepo.js";
-import { ensureTodayAttendanceRows, updatePersonMemo, updatePersonName, updatePersonColor } from "./db/attendanceRepo.js";
+import { ensureTodayAttendanceRows, updatePersonMemo, updatePersonName, updatePersonColor, getMonthlyAttendance } from "./db/attendanceRepo.js";
 import { pool } from "./db/connection.js";
 
 const app = express();
@@ -253,6 +253,24 @@ async function startServer() {
       console.error(err);
       res.status(500).json({ error: "Failed to update color" });
     }
+  });
+
+  // 이번 달 출석 화면
+  app.get("/api/currentMonthAttendance", async (req, res) => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+
+    const start = `${year}-${String(month).padStart(2,"0")}-01`;
+    const end = `${year}-${String(month).padStart(2,"0")}-31`;
+
+    const data = await getMonthlyAttendance(start, end);
+
+    res.json({
+      year,
+      month,
+      data
+    });
   });
 
   // 크론
