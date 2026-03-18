@@ -14,13 +14,15 @@ export async function ensureTodayAttendanceRows() {
     WHERE personId IS NOT NULL
   `);
 
-  for (const s of seats) {
-    await pool.query(`
-      INSERT INTO Attendance (seatId, date, present)
-      VALUES ($1, $2, 0)
-      ON CONFLICT(date, seatId) DO NOTHING
-    `, [s.seatId, today]);
-  }
+  await Promise.all(
+    seats.map(s =>
+      pool.query(`
+        INSERT INTO Attendance (seatId, date, present)
+        VALUES ($1, $2, 0)
+        ON CONFLICT(date, seatId) DO NOTHING
+      `, [s.seatId, today])
+    )
+  );
 }
 
 

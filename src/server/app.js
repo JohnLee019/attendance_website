@@ -2,6 +2,14 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config(); 
 
+process.on("uncaughtException", err => {
+  console.error("UNCAUGHT:", err);
+});
+
+process.on("unhandledRejection", err => {
+  console.error("UNHANDLED:", err);
+});
+
 import session from "express-session";
 import cron from "node-cron";
 
