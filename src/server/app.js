@@ -281,6 +281,13 @@ async function startServer() {
     });
   });
 
+
+  // 가벼운 요청 처리용 API
+  app.get("/api/ping", (req, res) => {
+    res.send("pong");
+  });
+
+
   // 크론
   cron.schedule("0 9 * * *", async () => {
     await ensureTodayAttendanceRows();
