@@ -13,8 +13,7 @@ process.on("unhandledRejection", err => {
 import session from "express-session";
 import cron from "node-cron";
 
-import { initSchema } from "./db/schema.js";
-import { seedSeatsIfEmpty } from "./db/seed.js";
+import { ensureDbReady } from "./dbInit.js";
 import { getTodayDate, getLastMonthRange } from "./utils/date.js";
 import { sendMonthlyExcel, sendTodayExcel } from "./mailer.js";
 import { getSeatsByDate } from "./db/seatRepo.js";
@@ -75,6 +74,7 @@ async function startServer() {
 
   // 좌석 조회
   app.get("/api/seats", async (req, res) => {
+    await ensureDbReady(); 
     const date = getTodayDate();
     const rows = await getSeatsByDate(date);
     res.json(rows);
@@ -82,6 +82,7 @@ async function startServer() {
 
   // 오늘 출석 토글
   app.patch("/api/seatattendance/:id", async (req, res) => {
+    await ensureDbReady();
     const seatId = Number(req.params.id);
     const date = getTodayDate();
 
@@ -107,6 +108,7 @@ async function startServer() {
 
   // 메모
   app.patch("/api/person/:id/memo", async (req, res) => {
+    await ensureDbReady();
     const personId = Number(req.params.id);
     const { memo } = req.body;
 
@@ -116,6 +118,7 @@ async function startServer() {
 
   // 오늘 통계
   app.get("/api/todayAttendanceStats", async (req, res) => {
+    await ensureDbReady();
     const date = getTodayDate();
 
     const { rows } = await pool.query(`
@@ -139,33 +142,39 @@ async function startServer() {
 
   // 이메일 관리
   app.get("/api/report-emails", async (req, res) => {
+    await ensureDbReady();
     const rows = await getReportEmails();
     res.json(rows);
   });
 
   app.post("/api/report-emails", async (req, res) => {
+    await ensureDbReady();
     await addReportEmail(req.body.email);
     res.json({ success: true });
   });
 
   app.post("/api/report-emails/activate", async (req, res) => {
+    await ensureDbReady();
     await setActiveEmail(req.body.id);
     res.json({ success: true });
   });
 
   app.delete("/api/report-emails/:id", async (req, res) => {
+    await ensureDbReady();
     await deleteReportEmail(Number(req.params.id));
     res.json({ success: true });
   });
 
   // 엑셀
   app.post("/api/sendTodayExcel", async (req, res) => {
+    await ensureDbReady();
     const date = getTodayDate();
     await sendTodayExcel(date);
     res.json({ success: true });
   });
 
   app.post("/api/sendDateExcel", async (req, res) => {
+    await ensureDbReady();
     const { date } = req.body;
     const result = await sendTodayExcel(date);
 
@@ -177,6 +186,7 @@ async function startServer() {
   });
 
   app.post("/api/sendLastMonthReport", async (req, res) => {
+    await ensureDbReady();
     const { start, end, year, month } = getLastMonthRange();
     const result = await sendMonthlyExcel(start, end, year, month);
 
@@ -189,6 +199,7 @@ async function startServer() {
 
   // 특정 날짜 조회
   app.get("/api/attendance", async (req, res) => {
+    await ensureDbReady();
     const { date } = req.query;
 
     const { rows } = await pool.query(`
@@ -212,6 +223,7 @@ async function startServer() {
 
   // 특정 날짜 수정
   app.patch("/api/attendance", async (req, res) => {
+    await ensureDbReady();
     const { seatId, date } = req.body;
 
     const { rows } = await pool.query(
@@ -235,6 +247,7 @@ async function startServer() {
 
   // 이름 업데이트
   app.patch("/api/person/:id/name", async (req, res) => {
+    await ensureDbReady();
     const id = Number(req.params.id);
     const { name } = req.body;
 
@@ -249,6 +262,7 @@ async function startServer() {
 
   // 색상 업데이트
   app.patch("/api/person/:id/color", async (req, res) => {
+    await ensureDbReady();
     const id = Number(req.params.id);
     const { color } = req.body;
 
@@ -263,6 +277,7 @@ async function startServer() {
 
   // 이번 달 출석 화면
   app.get("/api/currentMonthAttendance", async (req, res) => {
+    await ensureDbReady();
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth() + 1;
@@ -291,12 +306,15 @@ async function startServer() {
     console.log("Server running");
   });
   
-  initSchema()
-  .then(() => seedSeatsIfEmpty())
-  .catch(err => console.error("Init error:", err));
   
+  setTimeout(() => {
+    ensureDbReady();
+  }, 2000);
+
+
   // 크론
   cron.schedule("0 9 * * *", async () => {
+    await ensureDbReady();
     await ensureTodayAttendanceRows();
   });
 }
