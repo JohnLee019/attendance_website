@@ -25,13 +25,10 @@ import { pool } from "./db/connection.js";
 const app = express();
 
 async function startServer() {
-  await initSchema();
-  await seedSeatsIfEmpty();
-
   app.use(express.json());
 
   app.set("trust proxy", 1);
-
+  
   app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -41,13 +38,13 @@ async function startServer() {
       sameSite: "lax"
     }
   }));
-
+  
   app.use("/login.html", express.static("public/login.html"));
   app.use("/client/login.js", express.static("public/client/login.js"));
   app.use("/index.css", express.static("public/index.css"));
-
+  
   app.use((req, res, next) => {
-    if (req.path === "/login.html" || req.path === "/api/login") {
+    if (req.path === "/login.html" || req.path === "/api/login" || req.path === "/api/ping") {
       return next();
     }
 
@@ -60,8 +57,9 @@ async function startServer() {
 
     next();
   });
-
+  
   app.use(express.static("public"));
+
 
   // 로그인
   app.post("/api/login", async (req, res) => {
@@ -284,17 +282,22 @@ async function startServer() {
 
   // 가벼운 요청 처리용 API
   app.get("/api/ping", (req, res) => {
-    res.send("pong");
+    res.status(200).end();
   });
 
 
+  
+  app.listen(process.env.PORT || 3000, () => {
+    console.log("Server running");
+  });
+  
+  initSchema()
+  .then(() => seedSeatsIfEmpty())
+  .catch(err => console.error("Init error:", err));
+  
   // 크론
   cron.schedule("0 9 * * *", async () => {
     await ensureTodayAttendanceRows();
-  });
-
-  app.listen(process.env.PORT || 3000, () => {
-    console.log("Server running");
   });
 }
 
