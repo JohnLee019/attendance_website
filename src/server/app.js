@@ -296,10 +296,9 @@ async function startServer() {
 
 
   // 가벼운 요청 처리용 API
-  app.get("/api/ping", (req, res) => {
+  app.all("/api/ping", (req, res) => {
     res.status(200).end();
   });
-
 
   
   app.listen(process.env.PORT || 3000, () => {
