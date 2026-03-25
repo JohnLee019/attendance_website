@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
-
 import XLSX from 'xlsx';
 import { getDailyAttendance, getMonthlyAttendance } from './db/attendanceRepo.js';
 import { getActiveEmail } from './db/emailRepo.js';
@@ -10,10 +9,33 @@ import { getActiveEmail } from './db/emailRepo.js';
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.GMAIL_USER, // Gmail 사용자 이메일 (예: example@gmail.com)
-    pass: process.env.GMAIL_APP_PASSWORD, // 앱 비밀번호 (위에서 설정한 비밀번호)
+    user: process.env.GMAIL_USER,  // Gmail 사용자 이메일
+    pass: process.env.GMAIL_APP_PASSWORD,  // Gmail 앱 비밀번호
   },
+  secure: false,  // TLS를 사용할 경우 false로 설정
+  port: 587,      // TLS 포트 587
+  connectionTimeout: 30000,  // 연결 타임아웃을 30초로 설정
+  greetingTimeout: 30000,    // 인사말 타임아웃을 30초로 설정
+  socketTimeout: 30000       // 소켓 타임아웃을 30초로 설정
 });
+
+// 이메일 전송을 비동기적으로 처리하는 함수
+async function sendEmailInBackground(email, subject, text, attachments) {
+  setImmediate(async () => {
+    try {
+      await transporter.sendMail({
+        from: process.env.GMAIL_USER,
+        to: email,
+        subject,
+        text,
+        attachments,
+      });
+      console.log('Email sent successfully');
+    } catch (error) {
+      console.error('Email send failed:', error);
+    }
+  });
+}
 
 // 월간 출석 엑셀 전송
 export async function sendMonthlyExcel(start, end, year, month) {
@@ -24,7 +46,6 @@ export async function sendMonthlyExcel(start, end, year, month) {
   if (!data.length) return { empty: true };
 
   const daysInMonth = new Date(year, month, 0).getDate();
-
   const worksheetData = [];
   const activeDays = new Set();
 
@@ -70,23 +91,20 @@ export async function sendMonthlyExcel(start, end, year, month) {
 
   const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
-  // 비동기적으로 이메일 전송
-  transporter.sendMail({
-    from: process.env.GMAIL_USER,
-    to: email,
-    subject: `${year}-${month} 경로식당 출석부`,
-    text: '월간 출석 리포트입니다.',
-    attachments: [
+  // 이메일 전송을 비동기적으로 처리
+  sendEmailInBackground(
+    email,
+    `${year}-${month} 경로식당 출석부`,
+    '월간 출석 리포트입니다.',
+    [
       {
         filename: `${year}-${String(month).padStart(2, '0')} 경로식당 출석부.xlsx`,
         content: buffer.toString('base64'),
       },
-    ],
-  }).catch(error => {
-    console.error('Email send failed:', error);
-  });
+    ]
+  );
 
-  // 이메일 전송이 완료되기를 기다리지 않고 즉시 응답 반환
+  // 즉시 응답 반환
   return { success: true };
 }
 
@@ -109,22 +127,19 @@ export async function sendTodayExcel(date) {
 
   const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
-  // 비동기적으로 이메일 전송
-  transporter.sendMail({
-    from: process.env.GMAIL_USER,
-    to: email,
-    subject: `${date} 출석 현황`,
-    text: '오늘 출석 리포트입니다.',
-    attachments: [
+  // 이메일 전송을 비동기적으로 처리
+  sendEmailInBackground(
+    email,
+    `${date} 출석 현황`,
+    '오늘 출석 리포트입니다.',
+    [
       {
         filename: `${date}_출석.xlsx`,
         content: buffer.toString('base64'),
       },
-    ],
-  }).catch(error => {
-    console.error('Email send failed:', error);
-  });
+    ]
+  );
 
-  // 이메일 전송이 완료되기를 기다리지 않고 즉시 응답 반환
+  // 즉시 응답 반환
   return { success: true };
 }
