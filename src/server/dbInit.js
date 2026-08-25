@@ -1,31 +1,24 @@
-let isDbReady = false;
-let isInitializing = false;
-
 import { initSchema } from "./db/schema.js";
 import { seedSeatsIfEmpty } from "./db/seed.js";
+import { ensureMailLogBaseline } from "./db/mailLogRepo.js";
+import { backfillPersonOrder } from "./db/personOrderRepo.js";
 
-export async function ensureDbReady() {
-  if (isDbReady) return;
+let readyPromise = null;
 
-  if (isInitializing) {
-    while (!isDbReady) {
-      await new Promise(res => setTimeout(res, 100));
-    }
-    return;
+export function ensureDbReady() {
+  if (!readyPromise) {
+    readyPromise = (async () => {
+      console.log("DB init start");
+      await initSchema();
+      await seedSeatsIfEmpty();
+      await backfillPersonOrder();
+      await ensureMailLogBaseline();
+      console.log("DB init complete");
+    })().catch(err => {
+      readyPromise = null;   // 실패하면 다음 요청이 다시 시도
+      throw err;
+    });
   }
 
-  try {
-    isInitializing = true;
-    console.log("DB init start");
-
-    await initSchema();
-    await seedSeatsIfEmpty();
-
-    isDbReady = true;
-    console.log("DB init complete");
-  } catch (err) {
-    console.error("DB init failed:", err);
-  } finally {
-    isInitializing = false;
-  }
+  return readyPromise;
 }
