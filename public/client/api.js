@@ -1,8 +1,14 @@
 export async function fetchSeats() {
   const res = await fetch("/api/seats", {
-    credentials: "include"  
+    credentials: "include"
   });
-  if (!res.ok) throw new Error("좌석 데이터를 가져오지 못했습니다");
+
+  if (!res.ok) {
+    const err = new Error("좌석 데이터를 가져오지 못했습니다");
+    err.status = res.status;
+    throw err;
+  }
+
   return res.json();
 }
 

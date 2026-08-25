@@ -102,11 +102,18 @@ function syncSeatState(seatId, updater) {
   const seats = window.appState?.seats;
   if (!Array.isArray(seats)) return;
 
-  const seat = seats.find(s => s.seatNo === seatId);
+  const seat = seats.find(s => s.id === seatId);   // dataset.seatId는 Seat.id
   if (!seat) return;
 
   updater(seat);
 
+}
+
+function getSeatMemo(seatId) {
+  const seats = window.appState?.seats;
+  if (!Array.isArray(seats)) return "";
+
+  return seats.find(s => s.id === seatId)?.memo ?? "";
 }
 
 async function handleMemoDelete(btn) {
@@ -132,7 +139,8 @@ async function handleMemoWrite(btn) {
 
   if (!personId || !seatId) return;
 
-  const memo = prompt("메모를 입력하세요:");
+  // 기존 메모를 채워둔다 — 없으면 오타 하나 고치려고 전체를 다시 써야 한다.
+  const memo = prompt("메모를 입력하세요:", getSeatMemo(seatId));
   if (memo === null) return;
 
   await updateMemo(personId, memo);
@@ -155,20 +163,39 @@ function handleMemoView(btn) {
   btn.classList.toggle("show-memo", willOpen);
 }
 
+// 응답을 기다리는 동안 다시 눌리면 토글이 두 번 돌아 제자리로 온다.
+// 서버가 느릴 때(콜드 스타트) 실제로 자주 일어나므로 좌석 단위로 잠근다.
+const pendingSeats = new Set();
+
 async function handleAttendanceToggle(btn) {
   const seatId = Number(btn.dataset.seatId);
   if (!seatId) return;
 
-  const data = await toggleAttendance(seatId);
+  if (pendingSeats.has(seatId)) return;
+  pendingSeats.add(seatId);
 
-  btn.classList.toggle("present", data.isPresent);
+  // 낙관적 반영 — 서버 응답을 기다리지 않고 즉시 색을 바꾼다.
+  const wasPresent = btn.classList.contains("present");
+  btn.classList.toggle("present", !wasPresent);
 
-  syncSeatState(seatId, seat => {
-    seat.present = data.isPresent ? 1 : 0;
-  });
+  try {
+    const data = await toggleAttendance(seatId);
 
-  if (window.loadTodayStats) {
-    await window.loadTodayStats();
+    // 서버가 최종 상태를 돌려주므로 그 값으로 맞춘다.
+    btn.classList.toggle("present", data.isPresent);
+
+    syncSeatState(seatId, seat => {
+      seat.present = data.isPresent ? 1 : 0;
+    });
+
+    if (window.loadTodayStats) {
+      await window.loadTodayStats();
+    }
+  } catch (err) {
+    btn.classList.toggle("present", wasPresent);   // 실패하면 되돌린다
+    throw err;
+  } finally {
+    pendingSeats.delete(seatId);
   }
 }
 

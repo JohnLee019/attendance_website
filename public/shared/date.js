@@ -1,10 +1,12 @@
 export function getTodayDate() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit"
+  }).formatToParts(new Date());
 
-  return `${year}-${month}-${day}`;
+  const map = {};
+  for (const p of parts) if (p.type !== "literal") map[p.type] = p.value;
+
+  return `${map.year}-${map.month}-${map.day}`;
 }
 
 export function getLastMonthRange() {
