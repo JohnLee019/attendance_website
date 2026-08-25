@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>엑셀 양식 수정</title>
+    <link rel="stylesheet" href="index.css" />
+</head>
+<body class="settings-body">
+
+    <div class="settings-page">
+
+        <header class="settings-head">
+            <a href="settings.html" class="back-link">← 설정</a>
+            <h1>엑셀 양식 수정</h1>
+        </header>
+
+        <p class="panel-help">
+            여기서 정한 내용은 <b>월 별 출석표</b>에서 내려받는 파일과
+            <b>매월 1일 자동 발송</b>되는 월간 리포트에 함께 적용됩니다.
+        </p>
+
+        <section class="settings-group">
+            <h2 class="group-title">열 구성</h2>
+
+            <div class="panel">
+                <p class="panel-help">
+                    성명 열과 날짜 열(1일~말일)은 항상 들어갑니다.
+                </p>
+
+                <div class="format-options">
+                    <label class="check-row">
+                        <input type="checkbox" id="fmtSeatNo">
+                        <span class="check-text">
+                            <b>좌석번호 열</b>
+                            <small>성명 왼쪽에 자리 번호가 붙습니다. 날짜 칸 숫자와 헷갈릴 수 있어 기본은 꺼져 있습니다.</small>
+                        </span>
+                    </label>
+
+                    <label class="check-row">
+                        <input type="checkbox" id="fmtTotal">
+                        <span class="check-text">
+                            <b>총 출석 일수 열</b>
+                            <small>사람마다 그 달에 몇 번 나왔는지 맨 오른쪽에 셉니다.</small>
+                        </span>
+                    </label>
+
+                    <label class="check-row">
+                        <input type="checkbox" id="fmtRate">
+                        <span class="check-text">
+                            <b>출석률 열</b>
+                            <small>운영일(한 명이라도 나온 날) 대비 비율입니다.</small>
+                        </span>
+                    </label>
+
+                    <label class="check-row">
+                        <span class="check-text">
+                            <b>출석 표시 기호</b>
+                            <small>출석한 날 칸에 찍히는 값입니다.</small>
+                        </span>
+                        <select id="fmtMark" class="format-select" aria-label="출석 표시 기호">
+                            <option value="0">0</option>
+                            <option value="O">O</option>
+                            <option value="V">V</option>
+                            <option value="1">1</option>
+                        </select>
+                    </label>
+                </div>
+
+                <p class="format-preview-label">미리 보기</p>
+                <div class="format-preview-wrap">
+                    <table id="fmtPreview" class="format-preview"></table>
+                </div>
+
+                <p id="formatError" class="form-error" role="alert" hidden></p>
+
+                <button type="button" id="saveFormat" class="btn-primary">열 구성 저장</button>
+            </div>
+        </section>
+
+        <section class="settings-group">
+            <h2 class="group-title">이름 순서</h2>
+
+            <div class="panel">
+                <p class="panel-help">
+                    오른쪽 <b>≡</b> 손잡이를 끌어서 원하는 위치에 놓으세요.
+                    왼쪽 번호는 <b>엑셀에 나오는 차례</b>라서 자리에 고정돼 있습니다.
+                </p>
+
+                <div class="order-actions">
+                    <button type="button" id="saveOrder" class="btn-primary">순서 저장</button>
+                    <span id="orderStatus"></span>
+                </div>
+
+                <ol id="orderList" class="order-list"></ol>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/client/orderEdit.js"></script>
+</body>
+</html>

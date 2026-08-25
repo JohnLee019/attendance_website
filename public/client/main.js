@@ -1,7 +1,9 @@
 import { getTodayDate } from "../shared/date.js";
+import { SEAT_BLOCKS } from "../shared/seatLayout.js";
 import { fetchSeats } from "./api.js";
 import { makeBlock, appendSeatNos } from "./seatRenderer.js";
 import { bindAttendance } from "./attendance.js";
+import { bindSendButton } from "./sendButton.js";
 
 /* =========================
    App State
@@ -18,40 +20,71 @@ window.appState = appState;
 ========================= */
 
 async function loadTodayStats() {
-
   const res = await fetch("/api/todayAttendanceStats");
   if (!res.ok) return;
 
-  const data = await res.json();
+  const { total, present, percent, direct } = await res.json();
 
   const statsEl = document.getElementById("todayStats");
-  const directEl = document.getElementById("directStats");
-
-  if (!statsEl) return;
-
-  const validSeats = appState.seats.filter(
-    s => s.personName && s.personName.trim() !== ""
-  );
-
-  const total = validSeats.length;
-
-  const percent =
-    total === 0
-      ? 0
-      : Math.round((data.present / total) * 100);
-
-  statsEl.textContent =
-    `출석 인원: ${data.present}명 / ${total}명 (${percent}%)`;
-
-  /* 직접 전달 (파랑 + 출석) */
-
-  const directCount = validSeats.filter(
-    s => s.color === 1 && s.present === 1
-  ).length;
-
-  if (directEl) {
-    directEl.textContent = `직접 전달: ${directCount}명`;
+  if (statsEl) {
+    statsEl.textContent = `출석 인원: ${present}명 / ${total}명 (${percent}%)`;
   }
+
+  const directEl = document.getElementById("directStats");
+  if (directEl) {
+    directEl.textContent = `직접 전달: ${direct}명`;
+  }
+}
+
+/* =========================
+   좌석 기록지 만들기
+========================= */
+
+function bindCreateSheet() {
+  const btn = document.getElementById("createSheet");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    const title = prompt("기록지 제목을 입력하세요 (예: 10월 23일 반찬 배부)");
+    if (title === null) return;
+
+    if (!title.trim()) {
+      alert("제목을 입력해 주세요.");
+      return;
+    }
+
+    // 오늘 출석부를 베껴 와서 시작할지 물어본다.
+    // 취소를 누르면 아무것도 찍히지 않은 빈 기록지로 시작한다.
+    const copyAttendance = confirm(
+      "지금 좌석에 찍힌 오늘 출석 표시를 그대로 가져올까요?\n\n" +
+      "확인을 누르면 출석한 좌석에 '본인 수령' 표시가 미리 찍힙니다.\n" +
+      "한 번 베껴 올 뿐이라, 만든 뒤로는 기록지와 출석부가 서로 영향을 주지 않습니다."
+    );
+
+    btn.disabled = true;
+
+    try {
+      const res = await fetch("/api/seat-sheets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, copyAttendance })
+      });
+
+      if (!res.ok) {
+        const msg = await res.json().catch(() => ({}));
+        alert(msg.message || "기록지를 만들지 못했습니다.");
+        return;
+      }
+
+      const { id } = await res.json();
+      window.location.href = `/seatSheet.html?id=${id}`;
+    } catch (err) {
+      console.error(err);
+      alert("기록지를 만들지 못했습니다.");
+    } finally {
+      btn.disabled = false;
+    }
+  });
 }
 
 /* =========================
@@ -63,7 +96,17 @@ window.addEventListener("DOMContentLoaded", async () => {
   try {
     appState.seats = await fetchSeats();
   } catch (err) {
-    window.location.href = "/login.html";
+    // 401일 때만 로그인으로. 그 외(500 등)는 에러를 그대로 드러낸다.
+    if (err.status === 401) {
+      window.location.href = "/login.html";
+      return;
+    }
+
+    console.error(err);
+    document.body.insertAdjacentHTML(
+      "afterbegin",
+      `<p style="color:#c00;padding:12px">서버 오류로 좌석을 불러오지 못했습니다 (${err.status ?? "네트워크"}). 잠시 후 새로고침해 주세요.</p>`
+    );
     return;
   }
 
@@ -89,23 +132,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   seatmap.classList.add("is-grid");
   seatmap.innerHTML = "";
 
-  const blocks = [
-
-    { seats:[1,2,3,4,5,6], grid:{r:2,c:2,rs:6,cs:6}, wide:false },
-    { seats:[7,8,9,10,11,12], grid:{r:2,c:10,rs:6,cs:6}, wide:false },
-    { seats:[13,14,15,16,59,17,18,60], grid:{r:2,c:18,rs:4,cs:12}, wide:true },
-
-    { seats:[19,20,21,22,23,24], grid:{r:10,c:2,rs:6,cs:6}, wide:false },
-    { seats:[25,26,27,28,29,30], grid:{r:10,c:10,rs:6,cs:6}, wide:false },
-    { seats:[31,32,33,34,35,36,37,38], grid:{r:11,c:18,rs:4,cs:12}, wide:true },
-
-    { seats:[39,40,41,42,43,44], grid:{r:18,c:2,rs:6,cs:6}, wide:false },
-    { seats:[45,46,47,48,49,50], grid:{r:18,c:10,rs:6,cs:6}, wide:false },
-    { seats:[51,52,53,54,55,56,57,58], grid:{r:20,c:18,rs:4,cs:12}, wide:true }
-
-  ];
-
-  blocks.forEach(({ seats, grid, wide }) => {
+  SEAT_BLOCKS.forEach(({ seats, grid, wide }) => {
 
     const className = wide ? "block wide" : "block";
 
@@ -118,47 +145,20 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   bindAttendance(seatmap);
+  bindCreateSheet();
 
   await loadTodayStats();
 
-  const exportBtn = document.getElementById("exportExcel");
+  bindSendButton(
+    document.getElementById("exportExcel"),
+    "/api/sendTodayExcel",
+    { successMessage: "엑셀을 이메일로 전송했습니다." }
+  );
 
-  if (exportBtn) {
-
-    exportBtn.addEventListener("click", async () => {
-
-      const res = await fetch("/api/sendTodayExcel", {
-        method: "POST"
-      });
-
-      if (res.ok) {
-        alert("엑셀을 이메일로 전송했습니다.");
-      } else {
-        alert("전송 실패");
-      }
-
-    });
-
-  }
-
-  const lastMonthBtn = document.getElementById("lastMonthReport");
-
-  if (lastMonthBtn) {
-
-    lastMonthBtn.addEventListener("click", async () => {
-
-      const res = await fetch("/api/sendLastMonthReport", {
-        method: "POST"
-      });
-
-      if (res.ok) {
-        alert("저번 달 출석률을 이메일로 전송했습니다.");
-      } else {
-        alert("전송 실패");
-      }
-
-    });
-
-  }
+  bindSendButton(
+    document.getElementById("lastMonthReport"),
+    "/api/sendLastMonthReport",
+    { successMessage: "저번 달 출석률을 이메일로 전송했습니다." }
+  );
 
 });

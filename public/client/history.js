@@ -1,4 +1,6 @@
+import { SEAT_BLOCKS } from "../shared/seatLayout.js";
 import { makeBlock, appendSeatNos } from "./seatRenderer.js";
+import { bindSendButton } from "./sendButton.js";
 
 const searchBtn = document.getElementById("searchDate");
 const selectedDateInput = document.getElementById("selectedDate");
@@ -47,19 +49,7 @@ async function loadAttendance(date) {
   const seatByNo = new Map();
   data.forEach(row => seatByNo.set(row.seatNo, row));
 
-  const blocks = [
-    { seats: [1,2,3,4,5,6], grid:{r:2,c:2,rs:6,cs:6}, wide:false },
-    { seats: [7,8,9,10,11,12], grid:{r:2,c:10,rs:6,cs:6}, wide:false },
-    { seats: [13,14,15,16,59,17,18,60], grid:{r:2,c:18,rs:4,cs:12}, wide:true },
-    { seats: [19,20,21,22,23,24], grid:{r:10,c:2,rs:6,cs:6}, wide:false },
-    { seats: [25,26,27,28,29,30], grid:{r:10,c:10,rs:6,cs:6}, wide:false },
-    { seats: [31,32,33,34,35,36,37,38], grid:{r:11,c:18,rs:4,cs:12}, wide:true },
-    { seats: [39,40,41,42,43,44], grid:{r:18,c:2,rs:6,cs:6}, wide:false },
-    { seats: [45,46,47,48,49,50], grid:{r:18,c:10,rs:6,cs:6}, wide:false },
-    { seats: [51,52,53,54,55,56,57,58], grid:{r:20,c:18,rs:4,cs:12}, wide:true }
-  ];
-
-  blocks.forEach(({ seats, grid, wide }) => {
+  SEAT_BLOCKS.forEach(({ seats, grid, wide }) => {
     const block = makeBlock(wide ? "block wide" : "block", grid);
     appendSeatNos(block, seats, seatByNo);
     seatmap.appendChild(block);
@@ -67,6 +57,30 @@ async function loadAttendance(date) {
 
   // 조회 직후 엑셀 버튼 상태 계산
   updateExportButtonState();
+}
+
+
+// 월 별 출석표에서 날짜를 눌러 넘어온 경우.
+//
+// 그 달 표로 돌아갈 길도 같이 열어 둔다 — 여기까지 온 사람은 설정 화면이 아니라
+// 보던 표로 돌아가고 싶어 한다. 직접 들어온 경우에는 원래대로 설정 화면으로 간다.
+function applyDateFromUrl() {
+  const date = new URLSearchParams(window.location.search).get("date");
+
+  // 주소는 사용자가 손댈 수 있다. 형식이 맞을 때만 받아들인다.
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+
+  selectedDateInput.value = date;
+
+  const backLink = document.querySelector(".top-bar a");
+
+  if (backLink) {
+    const [year, month] = date.split("-");
+    backLink.href = `monthAttendance.html?year=${Number(year)}&month=${Number(month)}`;
+    backLink.textContent = "← 월 별 출석표";
+  }
+
+  loadAttendance(date);
 }
 
 
@@ -133,21 +147,15 @@ seatmap.addEventListener("click", async (e) => {
   updateExportButtonState();
 });
 
-exportBtn.addEventListener("click", async () => {
-  if (!currentDate) {
-    alert("날짜를 먼저 선택하세요.");
-    return;
-  }
+applyDateFromUrl();
 
-  const res = await fetch("/api/sendDateExcel", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ date: currentDate })
-  });
-
-  if (res.ok) {
-    alert("엑셀을 이메일로 전송했습니다.");
-  } else {
-    alert("전송 실패");
+bindSendButton(exportBtn, "/api/sendDateExcel", {
+  successMessage: "엑셀을 이메일로 전송했습니다.",
+  getBody: () => {
+    if (!currentDate) {
+      alert("날짜를 먼저 선택하세요.");
+      return null;
+    }
+    return { date: currentDate };
   }
 });

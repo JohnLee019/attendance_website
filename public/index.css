@@ -101,6 +101,13 @@
   color: #1565c0;
 }
 
+/* 이름 검색 결과 강조 */
+.seat.found {
+  outline: 3px solid #ff9800;
+  outline-offset: 2px;
+  background: #fff3e0;
+}
+
 /* 업데이트 애니메이션 */
 .seat.updated {
   outline: 3px solid #ff9800;
@@ -149,6 +156,8 @@
   display: flex;
   gap: 50px;
   margin-bottom: 30px;
+  flex-wrap: wrap;        /* 검색창이 추가돼도 가로로 넘치지 않게 */
+  align-items: center;
 }
 
 .toolbar button {
@@ -156,6 +165,42 @@
 }
 
 /* 버튼 활성화 */
+/* 달 고르개 (월 별 출석표) */
+.period-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.period-picker select {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #999;
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* 이름 검색창 */
+.seat-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#seatSearch {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #999;
+  border-radius: 6px;
+  min-width: 160px;
+}
+
+#searchCount {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
 .toolbar button.active {
   background: #000;
   color: #fff;
@@ -180,22 +225,6 @@
   color:#1565c0;
   font-weight:600;
 }
-
-/* 이메일 설정 영역 */
-#reportEmail { margin-right: 8px; }
-#saveEmail { margin-right: 12px; }
-
-#emailList {
-  margin-top: 25px;
-}
-
-#emailList > div {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
 
 /* 메모 말풍선 */
 .memo-bubble {
@@ -409,6 +438,24 @@
   height: 26px;
 }
 
+/* 날짜 칸 — 누르면 그날 좌석 배치도로 간다 */
+.attendance-table th[data-date],
+.attendance-table td[data-date] {
+  cursor: pointer;
+}
+
+.attendance-table th[data-date] {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: #1565c0;
+}
+
+.attendance-table th[data-date]:hover,
+.attendance-table td[data-date]:hover {
+  outline: 2px solid #1565c0;
+  outline-offset: -2px;
+}
+
 /* 출석 0 */
 .attendance-table td:has(:not(:empty)),
 .attendance-table td:not(:empty) {
@@ -426,4 +473,693 @@
   margin-top: 20px;
   font-size: 20px;
   font-weight: 600;
+}
+
+/* 이름 검색 결과 강조.
+   위의 td:not(:empty) / tr:hover 규칙과 특이도가 같아서, 반드시 그 뒤에 와야 이긴다. */
+.attendance-table tr.found td,
+.attendance-table tr.found:hover td {
+  background: #fff3e0;
+}
+
+.attendance-table tr.found td:nth-child(2) {
+  background: #ff9800;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ===== 좌석 기록지 ===== */
+
+.sheet-help {
+  max-width: 720px;
+  margin: 8px 0 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+}
+
+/* 표시 고르는 줄 */
+.mark-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mark-btn-wrap {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+/* 기록지가 어느 날짜 출석부에 반영되는지 */
+.sheet-date {
+  margin: 6px 0 0;
+  font-size: 0.95rem;
+  color: #1565c0;
+  font-weight: 600;
+}
+
+/* 표시 색은 기록지마다 달라서 --mark-color 로 넘겨받는다 */
+.mark-btn {
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #fff;
+  color: var(--mark-color, #555);
+  border: 2px solid var(--mark-color, #555);
+  border-radius: 6px 0 0 6px;
+}
+
+/* 고른 표시는 색을 꽉 채워서, 지금 무엇을 찍는 중인지 헷갈리지 않게 한다 */
+.mark-btn.active {
+  background: var(--mark-color, #555);
+  color: #fff;
+}
+
+/* 고치기(✎)와 지우기(×)는 표시 버튼에 붙어 한 덩어리처럼 보인다 */
+.mark-edit {
+  padding: 0 8px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-left: none;
+  border-right: none;
+}
+
+.mark-edit:hover {
+  color: #1565c0;
+  background: #f0f6ff;
+}
+
+.mark-del {
+  padding: 0 8px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+}
+
+.mark-del:hover {
+  color: #c00;
+  background: #fff0f0;
+}
+
+/* 표시 고치는 칸. 표시 줄 바로 아래에서 열린다 */
+.mark-editor {
+  max-width: 720px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: #f7f8fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.mark-editor-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.mark-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #555;
+}
+
+.mark-field input[type="text"] {
+  padding: 8px 10px;
+  font-size: 15px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+}
+
+.mark-field input[type="color"] {
+  width: 44px;
+  height: 34px;
+  padding: 2px;
+  cursor: pointer;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.mark-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+}
+
+.mark-editor-buttons {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.btn-cancel {
+  padding: 11px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #555;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-cancel:hover {
+  background: #f0f0f0;
+}
+
+/* 이 표시가 출석부까지 바꾸는지 알려 주는 줄 — 폭을 다 차지해 다음 줄로 내려온다 */
+.mark-editor-note {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #777;
+}
+
+.mark-add {
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #555;
+  background: #fff;
+  border: 2px dashed #999;
+  border-radius: 6px;
+}
+
+/* 표시가 찍힌 좌석 */
+.seat.marked {
+  position: relative;
+  background: var(--mark-bg, #fff);
+  border: 2px solid var(--mark-color);
+  color: var(--mark-color);
+  font-weight: 600;
+}
+
+/* 누가 대신 가져갔는지 등, 표시에 딸린 메모 */
+.mark-note {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 설정 화면의 기록지 목록 */
+.sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.sheet-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.sheet-meta {
+  font-size: 13px;
+  color: #777;
+  margin-right: auto;
+}
+
+/* ===== 엑셀 양식 수정 — 이름 순서 목록 ===== */
+
+/* 번호는 항목 안에서 직접 그린다(.order-index). ol 의 기본 마커는 끈다. */
+.order-list {
+  list-style: none;
+  max-width: 480px;
+  margin: 0;
+  padding: 0;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px;
+  margin-bottom: 6px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* 엑셀에 나오는 차례. 폭을 고정해 두 자리·세 자리가 돼도 이름 줄이 흔들리지 않는다. */
+.order-index {
+  flex: 0 0 30px;
+  text-align: center;
+  padding: 3px 0;
+  background: #eef1f5;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #445;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.order-name {
+  font-size: 15px;
+  font-weight: 600;
+  margin-right: auto;
+}
+
+/* 목록 위에 둔다. 이름이 60명이면 목록 아래 버튼은 화면 밖으로 밀려나서,
+   순서를 바꾼 자리에서 그대로 저장할 수 없다. */
+.order-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* 손잡이만 터치를 가져간다. 항목 전체에 걸면 휴대폰에서 목록 스크롤이 막힌다. */
+.drag-handle {
+  touch-action: none;
+  cursor: grab;
+  padding: 4px 12px;
+  font-size: 22px;
+  line-height: 1;
+  color: #888;
+  user-select: none;
+}
+
+/* 끌리는 중이라는 표시만 한다.
+   예전에는 여기에 pointer-events:none 이 있었다 — elementFromPoint 로 밑에 깔린 항목을
+   집어내기 위한 것이었는데, 그 방식 자체가 끌기가 먹히지 않는 원인이었다.
+   지금은 자리(getBoundingClientRect)로 계산해서 히트 테스트에 기대지 않는다. */
+.order-item.dragging {
+  opacity: 0.85;
+  border-color: #ff9800;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+#orderStatus {
+  font-size: 13px;
+  color: #666;
+}
+
+/* ===== 설정 화면 ===== */
+
+.settings-body {
+  margin: 0;
+  background: #f5f6f8;
+  color: #1a1a1a;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* 태블릿 가로폭에서도 한 줄이 너무 길어지지 않게 가둔다. */
+.settings-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 20px 16px 80px;
+}
+
+.settings-head {
+  padding: 8px 0 4px;
+}
+
+.settings-head h1 {
+  margin: 12px 0 0;
+  font-size: 1.8rem;
+}
+
+.back-link {
+  display: inline-block;
+  padding: 8px 12px 8px 0;
+  font-size: 15px;
+  color: #444;
+}
+
+.settings-group {
+  margin-top: 32px;
+}
+
+.group-title {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #6b7280;
+}
+
+/* 하얀 카드 하나가 설정 항목 하나다. hr 로 나누던 것을 대신한다. */
+.panel {
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e3e5e9;
+  border-radius: 12px;
+}
+
+.panel-help {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+}
+
+/* 다른 화면으로 가는 링크들 — 무엇을 하는 곳인지 설명까지 같이 보여준다. */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.nav-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e3e5e9;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.nav-card:hover {
+  border-color: #1a1a1a;
+  background: #fafafa;
+}
+
+.nav-card:active {
+  transform: scale(0.99);
+}
+
+.nav-icon {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  background: #f2f4f7;
+  border-radius: 10px;
+}
+
+.nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.nav-text strong {
+  font-size: 15px;
+}
+
+.nav-text small {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+/* 입력칸과 버튼을 한 줄로. 좁은 화면에서는 버튼이 아래로 내려간다. */
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inline-form input[type="email"] {
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: 11px 12px;
+  font-size: 15px;
+  border: 1px solid #c9ccd1;
+  border-radius: 8px;
+}
+
+.inline-form input[type="email"]:focus {
+  outline: 2px solid #1a1a1a;
+  outline-offset: -1px;
+  border-color: #1a1a1a;
+}
+
+.inline-form input.is-invalid {
+  border-color: #c62828;
+}
+
+.btn-primary {
+  padding: 11px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: #1a1a1a;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #333;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.form-error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #c62828;
+}
+
+.email-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+.email-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  border-top: 1px solid #eef0f3;
+}
+
+.email-row:first-child {
+  border-top: none;
+}
+
+/* ===== 월간 엑셀 양식 ===== */
+
+.format-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 체크박스만이 아니라 줄 전체가 눌린다 — 태블릿에서 훨씬 정확하다. */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #eef0f3;
+  cursor: pointer;
+}
+
+.check-row:first-child {
+  border-top: none;
+}
+
+.check-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.check-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-right: auto;
+  font-size: 14px;
+}
+
+.check-text small {
+  font-size: 12.5px;
+  color: #777;
+  line-height: 1.5;
+}
+
+.format-select {
+  padding: 8px 10px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.format-preview-label {
+  margin: 18px 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+/* 열이 늘어나도 카드를 밀지 않고 미리 보기 안에서만 가로로 넘긴다. */
+.format-preview-wrap {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.format-preview {
+  border-collapse: collapse;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.format-preview th,
+.format-preview td {
+  padding: 6px 10px;
+  border: 1px solid #dcdfe4;
+  text-align: center;
+}
+
+.format-preview th {
+  background: #f4f6f8;
+  font-weight: 600;
+  color: #445;
+}
+
+/* 라디오 점만이 아니라 줄 전체가 눌린다. 태블릿에서 훨씬 정확하다. */
+.email-pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 10px 4px;
+  cursor: pointer;
+}
+
+.email-pick input[type="radio"] {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  accent-color: #1a1a1a;
+}
+
+.email-addr {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-row.is-active .email-addr {
+  font-weight: 600;
+}
+
+/* 어느 주소로 실제로 나가는지 한눈에 보이게 하는 딱지 */
+.email-badge {
+  flex: none;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: #2e7d32;
+  border-radius: 10px;
+}
+
+.text-btn {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #6b7280;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.text-btn.danger:hover {
+  color: #c62828;
+  border-color: #f0c9c9;
+  background: #fff5f5;
+}
+
+.empty-row {
+  margin: 0;
+  padding: 14px 4px;
+  font-size: 14px;
+  color: #8a8f98;
+}
+
+/* 설정 화면 안에서는 기록지 줄도 카드 안쪽 여백에 맞춘다. */
+.sheet-list .sheet-row:first-child {
+  padding-top: 0;
+}
+
+.sheet-list .sheet-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.banner {
+  margin-top: 20px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  border-radius: 10px;
+}
+
+.banner-warn {
+  color: #7a4b00;
+  background: #fff8e1;
+  border: 1px solid #ffd68a;
+}
+
+/* 저장·삭제 결과 알림.
+   alert 과 달리 확인을 누르지 않아도 되고, 손이 멈추지 않는다. */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translate(-50%, 12px);
+  max-width: calc(100% - 32px);
+  padding: 12px 20px;
+  font-size: 14px;
+  color: #fff;
+  background: #1a1a1a;
+  border-radius: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 200;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.toast-error {
+  background: #c62828;
 }

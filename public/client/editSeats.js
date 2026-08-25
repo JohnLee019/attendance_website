@@ -1,3 +1,4 @@
+import { SEAT_BLOCKS } from "../shared/seatLayout.js";
 import { fetchSeats } from "./api.js";
 import { makeBlock, appendSeatNos } from "./seatRenderer.js";
 
@@ -55,22 +56,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   const seatByNo = new Map();
   seats.forEach(s => seatByNo.set(s.seatNo, s));
 
-  const blocks = [
-    { seats: [1,2,3,4,5,6], grid:{r:2,c:2,rs:6,cs:6}, wide:false },
-    { seats: [7,8,9,10,11,12], grid:{r:2,c:10,rs:6,cs:6}, wide:false },
-    { seats: [13,14,15,16,59,17,18,60], grid:{r:2,c:18,rs:4,cs:12}, wide:true },
-    { seats: [19,20,21,22,23,24], grid:{r:10,c:2,rs:6,cs:6}, wide:false },
-    { seats: [25,26,27,28,29,30], grid:{r:10,c:10,rs:6,cs:6}, wide:false },
-    { seats: [31,32,33,34,35,36,37,38], grid:{r:11,c:18,rs:4,cs:12}, wide:true },
-    { seats: [39,40,41,42,43,44], grid:{r:18,c:2,rs:6,cs:6}, wide:false },
-    { seats: [45,46,47,48,49,50], grid:{r:18,c:10,rs:6,cs:6}, wide:false },
-    { seats: [51,52,53,54,55,56,57,58], grid:{r:20,c:18,rs:4,cs:12}, wide:true }
-  ];
-
   seatmap.classList.add("is-grid");
   seatmap.innerHTML = "";
 
-  blocks.forEach(({ seats, grid, wide }) => {
+  SEAT_BLOCKS.forEach(({ seats, grid, wide }) => {
     const className = wide ? "block wide" : "block";
     const b = makeBlock(className, grid);
     appendSeatNos(b, seats, seatByNo);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>현재 달 출석 현황</title>
+    <title>월 별 출석 현황</title>
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -11,9 +11,30 @@
 
     <h2 id="title"></h2>
 
+    <p class="sheet-help">
+        <b>날짜를 누르면</b> 그날 좌석 배치도가 열립니다. 빠뜨린 출석은 거기서 고치세요 —
+        이름이 크게 보여서 잘못 누를 일이 적습니다.
+    </p>
+
+    <div class="toolbar">
+        <span class="period-picker">
+            <select id="yearSelect" aria-label="연도"></select>
+            <select id="monthSelect" aria-label="월"></select>
+        </span>
+
+        <button type="button" id="downloadExcel">엑셀로 내려받기</button>
+
+        <span class="seat-search">
+            <input type="search" id="seatSearch" placeholder="이름으로 좌석 찾기">
+            <span id="searchCount"></span>
+        </span>
+    </div>
+
     <div style="overflow-x:auto;">
     <table id="attendanceTable" class="attendance-table"></table>
     </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script type="module" src="/client/monthAttendance.js"></script>
 </body>
